@@ -4,14 +4,16 @@ import com.ur.urcap.api.contribution.ProgramNodeContribution;
 import com.ur.urcap.api.contribution.program.ProgramAPIProvider;
 import com.ur.urcap.api.domain.data.DataModel;
 import com.ur.urcap.api.domain.script.ScriptWriter;
-import com.ur.urcap.api.domain.system.localization.Localization;
 import com.ur.urcap.api.domain.system.localization.UnitType;
 import com.ur.urcap.api.domain.undoredo.UndoableChanges;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardNumberInput;
 import com.ur.urcap.api.domain.value.simple.Length;
 import com.ur.urcap.api.domain.value.simple.SimpleValueFactory;
-import com.ur.urcap.examples.localizationswing.i18n.*;
+import com.ur.urcap.examples.localizationswing.i18n.CommandNamesResource;
+import com.ur.urcap.examples.localizationswing.i18n.LanguagePack;
+import com.ur.urcap.examples.localizationswing.i18n.TextResource;
+import com.ur.urcap.examples.localizationswing.i18n.UnitsResource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +21,6 @@ import java.util.List;
 public class LocalizationProgramNodeContribution implements ProgramNodeContribution {
 	private static final String HEIGHT = "height";
 	private static final String UNIT = "unit";
-	private static final List<String> languagesNotSupportedInPopups = Arrays.asList("ru","jp","ko","zh");
 
 	private final UnitType systemOfMeasurement;
 	private final SimpleValueFactory valueFactory;
@@ -96,7 +97,7 @@ public class LocalizationProgramNodeContribution implements ProgramNodeContribut
 
 	@Override
 	public void generateScript(ScriptWriter writer) {
-		writer.appendLine("popup(\"" + generatePopupMessage() + "\")");
+		writer.appendLine("popup(\"" + createMessage() + "\")");
 	}
 
 	public KeyboardInputCallback<Double> getCallbackForSetHeight() {
@@ -110,13 +111,13 @@ public class LocalizationProgramNodeContribution implements ProgramNodeContribut
 
 	private void storeHeight(final Double value) {
 		apiProvider.getProgramAPI().getUndoRedoManager().recordChanges(new UndoableChanges() {
-            @Override
-            public void executeChanges() {
+			@Override
+			public void executeChanges() {
 				model.set(HEIGHT, value);
 				setUnitExampleLabel();
 				setHeightTextField(value.toString());
 			}
-        });
+		});
 	}
 
 	private void setHeightTextField(String height) {
@@ -173,43 +174,12 @@ public class LocalizationProgramNodeContribution implements ProgramNodeContribut
 		return getTextResource().language() + ": " + languagePack.getLanguageResource().localeLanguage();
 	}
 
-	private String createLanguageString(LanguagePack outputLanguage, String lang) {
-		return outputLanguage.getTextResource().language() + ": " + outputLanguage.getLanguageResource().language(lang);
-	}
-
 	private String createProgrammingLanguageString() {
 		return getTextResource().programmingLanguage() + ": " + languagePack.getLanguageResource().localeProgrammingLanguage();
 	}
 
-	private String createProgrammingLanguageString(LanguagePack outputLanguage, String lang) {
-		return outputLanguage.getTextResource().programmingLanguage() + ": " + outputLanguage.getLanguageResource().language(lang);
-	}
-
 	private Length.Unit getSystemLengthUnit() {
 		return systemOfMeasurement == UnitType.METRIC ? Length.Unit.MM : Length.Unit.IN;
-	}
-
-	private String generatePopupMessage() {
-		String message;
-		final Localization systemLocalization = languagePack.getLocalization();
-		if (languagesNotSupportedInPopups.contains(systemLocalization.getLocale().getLanguage()) ) {
-			message = createMessageForUnsupportedLanguage(systemLocalization);
-		} else {
-			message = createMessage();
-		}
-		return message;
-	}
-
-	private String createMessageForUnsupportedLanguage(Localization systemLocalization) {
-		String systemLanguage = systemLocalization.getLocale().getLanguage();
-		String systemProgrammingLanguage = systemLocalization.getLocaleForProgrammingLanguage().getLanguage();
-		LanguagePack englishLanguagePack = new EnglishLanguagePack();
-		String message = getTextResource().notSupported()  + "<br/>" +
-				createLanguageString(englishLanguagePack, systemLanguage) + "<br/>" +
-				createProgrammingLanguageString(englishLanguagePack, systemProgrammingLanguage) + "<br/>" +
-				createSystemOfMeasurementString(englishLanguagePack) + "<br/>" +
-				createConvertedValueString();
-		return message;
 	}
 
 	private String createMessage() {

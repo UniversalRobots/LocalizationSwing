@@ -17,7 +17,7 @@ public class LanguagePack {
 	public LanguagePack(Localization localization) {
 		this.localization = localization;
 		createTextResource(localization.getLocale());
-		createLanguageResource(localization.getLocale(), localization.getLocaleForProgrammingLanguage().getLanguage());
+		createLanguageResource(localization.getLocale(), localization.getLocaleForProgrammingLanguage());
 		createCommandNamesResource(localization.getLocaleForProgrammingLanguage());
 		createUnitsResource(localization.getLocale());
 		unitType = localization.getUnitType();
@@ -59,7 +59,7 @@ public class LanguagePack {
 		unitsResource = new UnitsResource(locale);
 	}
 
-	private void createLanguageResource(Locale locale, String programmingLanguage) {
-		languageResource = new LanguageResource(locale, programmingLanguage);
+	private void createLanguageResource(Locale locale, Locale programmingLanguageLocale) {
+		languageResource = new LanguageResource(locale, programmingLanguageLocale);
 	}
 }
